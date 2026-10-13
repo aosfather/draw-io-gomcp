@@ -35,7 +35,7 @@ Download the prebuilt binary for your platform from the [Releases](../../release
 
 ```bash
 # Build from source (requires Go 1.22+)
-git clone https://github.com/your-org/draw-io-gomcp.git
+git clone https://github.com/aosfather/draw-io-gomcp.git
 cd draw-io-gomcp
 go build -o draw-io-gomcp ./cmd/server
 
