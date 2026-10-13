@@ -1,4 +1,4 @@
-# draw-io-gomcp
+# draw-io-gomcp [中文](README-CN.md)
 
 A local, zero-dependency [Draw.io](https://www.draw.io/) (diagrams.net) MCP server written in Go.
 
