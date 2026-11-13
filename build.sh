@@ -58,9 +58,10 @@ build_one() {
     go build -trimpath "-ldflags=${LDFLAGS_STR}" -o "${pkg}/${bin}" ${PKG}
   )
 
-  # 打包成 archive, 目录根就是 binary + README + LICENSE
+  # 打包成 archive, 目录根就是 binary + README + LICENSE + NOTICE
   cp README.md "${pkg}/" 2>/dev/null || true
   cp LICENSE   "${pkg}/" 2>/dev/null || true
+  cp NOTICE    "${pkg}/" 2>/dev/null || true
 
   local archive="${OUTDIR}/${APP}-${VERSION}-${goos}-${goarch}.${ext}"
   rm -f "$archive"
@@ -72,28 +73,36 @@ build_one() {
   echo "    -> ${archive} ($(du -h "$archive" | cut -f1))"
 }
 
-# ---- skills 打包 ----
+# ---- skills 打包 (普通 skills + .dsh 兼容层) ----
 SKILLS_SRC="skills"
+DSH_SKILLS_SRC=".dsh/skills"
 
 build_skills() {
-  if [ ! -d "$SKILLS_SRC" ]; then
-    echo "==> skills/ 目录不存在, 跳过 skill 打包"
+  local has_skills=false
+  [ -d "$SKILLS_SRC" ] && has_skills=true
+  [ -d "$DSH_SKILLS_SRC" ] && has_skills=true
+
+  if [ "$has_skills" = false ]; then
+    echo "==> skills/ 和 .dsh/skills/ 都不存在, 跳过 skill 打包"
     return 0
   fi
 
   echo
-  echo "==> 打包 skills"
+  echo "==> 打包 skills (含 .dsh 兼容层)"
 
   local skill_archive="${OUTDIR}/${APP}-skills-${VERSION}.tar.gz"
   rm -f "$skill_archive"
 
-  # 打包整个 skills 目录, 排除 macOS/编辑器垃圾文件
-  tar -czf "$skill_archive" \
-      --exclude='.DS_Store' \
-      --exclude='.git' \
-      --exclude='*.swp' \
-      --exclude='__pycache__' \
-      "$SKILLS_SRC"
+  # 打包 skills + .dsh/skills, 排除 macOS/编辑器垃圾文件
+  # 注意: tar 参数顺序决定了归档内的相对路径
+  local tar_args=(--exclude='.DS_Store' --exclude='.git' --exclude='*.swp' --exclude='__pycache__')
+  if [ -d "$SKILLS_SRC" ]; then
+    tar_args+=("$SKILLS_SRC")
+  fi
+  if [ -d "$DSH_SKILLS_SRC" ]; then
+    tar_args+=("$DSH_SKILLS_SRC")
+  fi
+  tar -czf "$skill_archive" "${tar_args[@]}"
 
   echo "    -> ${skill_archive} ($(du -h "$skill_archive" | cut -f1))"
 }
