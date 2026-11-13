@@ -30,7 +30,7 @@ func main() {
 		return autosaver.Load(sessionID)
 	})
 
-	s := server.NewMCPServer("next-ai-drawio", packageVersion,
+	s := server.NewMCPServer("draw-io-gomcp", packageVersion,
 		server.WithInstructions(tools.INSTRUCTIONS),
 	)
 	tools.Register(s, tools.Deps{Autosaver: autosaver, Version: packageVersion})

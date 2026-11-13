@@ -275,7 +275,7 @@ const OTHER_PAGES_UNSEEN = "You have not seen the other pages in their current s
 // (Claude Code at 2,048 characters) and may show only the first 512, so the
 // essentials come first. The full rules are in DrawingGuide, returned by
 // start_session.
-const INSTRUCTIONS = `next-ai-drawio creates and edits draw.io diagrams and shows them live in a browser preview, where the user can also edit them by hand.
+const INSTRUCTIONS = `draw-io-gomcp creates and edits draw.io diagrams and shows them live in a browser preview, where the user can also edit them by hand.
 
 Start with start_session: it opens the preview and its result contains the drawing guide (layout, edge routing and style rules). Follow the guide when drawing; call get_drawing_guide if it is no longer in your context.
 

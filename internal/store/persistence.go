@@ -46,8 +46,8 @@ func ExpandHome(p string) string {
 	return p
 }
 
-// DefaultDataDir reads DRAWIO_DATA_DIR, default ~/.next-ai-drawio.
-// Returns nil when saving is disabled ("off").
+// DefaultDataDir reads DRAWIO_DATA_DIR, default ~/.draw-io-gomcp.
+// Returns empty string when saving is disabled ("off").
 func DefaultDataDir() string {
 	dir := os.Getenv("DRAWIO_DATA_DIR")
 	if dir == "off" {
@@ -58,9 +58,9 @@ func DefaultDataDir() string {
 	}
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return ".next-ai-drawio"
+		return ".draw-io-gomcp"
 	}
-	return filepath.Join(home, ".next-ai-drawio")
+	return filepath.Join(home, ".draw-io-gomcp")
 }
 
 // isGone reports whether the file surely does not exist (not merely out of
