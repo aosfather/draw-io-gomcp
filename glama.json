@@ -3,7 +3,7 @@
   "maintainers": ["aosfather"],
   "name": "draw-io-gomcp",
   "display_name": "draw-io-gomcp",
-  "description": "A local, zero-dependency Draw.io (diagrams.net) MCP server written in Go. Exposes diagram creation, editing, preview and export capabilities to any MCP-compatible AI client over stdio, with 14 typed tools covering session lifecycle, pages, shape libraries, and on-demand drawing guides.",
+  "description": "Local zero-dependency Draw.io MCP server in Go — 14 typed tools for diagram create/edit/preview/export over stdio with live browser preview, on-demand drawing guides, 25+ bundled vendor shape libraries, and auto-save.",
   "repository": "https://github.com/aosfather/draw-io-gomcp",
   "license": "Apache-2.0",
   "runtime": "go",
