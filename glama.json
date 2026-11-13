@@ -1,0 +1,21 @@
+{
+  "$schema": "https://glama.ai/mcp/schemas/server.json",
+  "maintainers": ["aosfather"],
+  "name": "draw-io-gomcp",
+  "display_name": "draw-io-gomcp",
+  "description": "A local, zero-dependency Draw.io (diagrams.net) MCP server written in Go. Exposes diagram creation, editing, preview and export capabilities to any MCP-compatible AI client over stdio, with 14 typed tools covering session lifecycle, pages, shape libraries, and on-demand drawing guides.",
+  "repository": "https://github.com/aosfather/draw-io-gomcp",
+  "license": "Apache-2.0",
+  "runtime": "go",
+  "tags": ["drawio", "diagrams", "mcp", "go", "local-first", "zero-dependency", "stdio"],
+  "mcpServers": {
+    "draw-io-gomcp": {
+      "command": "./draw-io-gomcp",
+      "args": [],
+      "build": [
+        "go build -trimpath -ldflags='-s -w' -o draw-io-gomcp ./cmd/server"
+      ],
+      "env": {}
+    }
+  }
+}
