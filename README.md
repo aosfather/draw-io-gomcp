@@ -94,6 +94,35 @@ Once connected, simply ask your AI assistant to draw something, for example:
 The assistant generates the diagram, and you can **preview it live** and ask for refinements
 ("make the database box red", "add an error path", etc.).
 
+## Capability routing
+
+Tool descriptions and all four MCP behaviour hints are generated from
+`internal/capabilities/capabilities.json`, which also drives the registry
+index and the bundled skill's routing table. Long-form drawing rules are split
+into nine guide sections and loaded on demand with `get_guide(sections=[...])`;
+`start_session` returns a `next_step` instead of injecting the whole guide.
+`get_drawing_guide` remains as a legacy full-text alias.
+
+```bash
+go run ./cmd/capgen -check                                            # lint the catalogue
+go run ./cmd/capgen -out build/capabilities.index.json                 # registry / router index
+go run ./cmd/capgen -skill skills/draw-io-gomcp/references/routing-index.md
+```
+
+`go test ./...` fails if the generated routing table or the skill's frontmatter
+description drifts from the catalogue, so regenerate both before committing.
+
+Restart the MCP session after changing the catalogue: `tools/list` is fetched
+once per connection and cached.
+
+## Bundled skill package
+
+`skills/draw-io-gomcp/` is a self-contained Agent Skill package (frontmatter,
+installer and references) that lives in this repository. Releasing the server
+no longer requires tracking down a separate copy of the docs. To publish, zip
+that directory with `SKILL.md` at the archive root; the `PUBLISH.md` inside it
+has the full checklist.
+
 ## How it works
 
 ```

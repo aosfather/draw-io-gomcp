@@ -1,0 +1,397 @@
+{
+  "version": 1,
+  "server": "draw-io",
+  "guide_sections": [
+    "core",
+    "xml",
+    "layout",
+    "edges",
+    "styles",
+    "editing",
+    "pages",
+    "export",
+    "libraries"
+  ],
+  "tools": [
+    {
+      "name": "start_session",
+      "title": "Start session",
+      "when_to_use": "Start a diagramming session and open the live browser preview. Call once before any other draw.io tool in a conversation.",
+      "when_not_to_use": [
+        {
+          "case": "a session is already active in this conversation",
+          "use": ""
+        }
+      ],
+      "requires": "no arguments",
+      "errors": [
+        "port_in_use"
+      ],
+      "docs": [
+        "guide://core"
+      ],
+      "tier": "write",
+      "annotations": {
+        "read_only": false,
+        "destructive": false,
+        "idempotent": false,
+        "open_world": false
+      }
+    },
+    {
+      "name": "get_guide",
+      "title": "Get guide sections",
+      "when_to_use": "Load only the guide sections needed for the current task. Call after start_session and before generating any XML.",
+      "when_not_to_use": [
+        {
+          "case": "you need the whole guide verbatim in one call",
+          "use": "get_drawing_guide"
+        }
+      ],
+      "requires": "sections array, e.g. [\"core\", \"xml\", \"edges\"]",
+      "errors": [
+        "unknown_section"
+      ],
+      "docs": [],
+      "tier": "read",
+      "annotations": {
+        "read_only": true,
+        "destructive": false,
+        "idempotent": true,
+        "open_world": false
+      }
+    },
+    {
+      "name": "get_drawing_guide",
+      "title": "Get drawing guide (legacy)",
+      "when_to_use": "Legacy alias. Returns the complete drawing guide in one call, including sections you do not need.",
+      "when_not_to_use": [
+        {
+          "case": "only part of the guide is needed",
+          "use": "get_guide"
+        }
+      ],
+      "requires": "no arguments",
+      "errors": [],
+      "docs": [
+        "guide://core"
+      ],
+      "tier": "read",
+      "annotations": {
+        "read_only": true,
+        "destructive": false,
+        "idempotent": true,
+        "open_world": false
+      }
+    },
+    {
+      "name": "get_shape_library",
+      "title": "Get shape library",
+      "when_to_use": "Get exact style names before drawing vendor icon shapes. Call with no library to list every available library.",
+      "when_not_to_use": [
+        {
+          "case": "the diagram uses only plain shapes",
+          "use": ""
+        }
+      ],
+      "requires": "library (optional; empty returns the catalogue)",
+      "errors": [
+        "unknown_library"
+      ],
+      "docs": [
+        "guide://libraries"
+      ],
+      "tier": "read",
+      "annotations": {
+        "read_only": true,
+        "destructive": false,
+        "idempotent": true,
+        "open_world": false
+      }
+    },
+    {
+      "name": "create_new_diagram",
+      "title": "Create new diagram",
+      "when_to_use": "Create a brand-new document from XML, REPLACING every page and any unsaved user edits. The previous state stays in History.",
+      "when_not_to_use": [
+        {
+          "case": "adding another tab to an existing diagram",
+          "use": "add_page"
+        },
+        {
+          "case": "changing only a few cells",
+          "use": "edit_diagram"
+        },
+        {
+          "case": "opening an existing .drawio file from disk",
+          "use": "load_diagram"
+        }
+      ],
+      "requires": "xml; see guide://xml for accepted shapes and rules",
+      "errors": [
+        "no_session",
+        "invalid_xml",
+        "reserved_id"
+      ],
+      "docs": [
+        "guide://core",
+        "guide://xml",
+        "guide://layout"
+      ],
+      "tier": "write_destructive",
+      "annotations": {
+        "read_only": false,
+        "destructive": true,
+        "idempotent": false,
+        "open_world": false
+      }
+    },
+    {
+      "name": "load_diagram",
+      "title": "Load .drawio file",
+      "when_to_use": "Open a .drawio file from disk into the session, REPLACING the whole document. The server reads the file itself; handles plain XML and draw.io compressed format.",
+      "when_not_to_use": [
+        {
+          "case": "you already have the XML in context and want to redraw",
+          "use": "create_new_diagram"
+        },
+        {
+          "case": "you only want to inspect the in-memory diagram",
+          "use": "get_diagram"
+        }
+      ],
+      "requires": "absolute path; relative paths resolve against the server working directory",
+      "errors": [
+        "file_not_found",
+        "parse_failed"
+      ],
+      "docs": [
+        "guide://editing"
+      ],
+      "tier": "write_destructive",
+      "annotations": {
+        "read_only": false,
+        "destructive": true,
+        "idempotent": false,
+        "open_world": false
+      }
+    },
+    {
+      "name": "edit_diagram",
+      "title": "Edit diagram",
+      "when_to_use": "Add, update or delete individual cells of an existing page by cell id. Operations are all-or-nothing.",
+      "when_not_to_use": [
+        {
+          "case": "recreating the whole document",
+          "use": "create_new_diagram"
+        },
+        {
+          "case": "adding a tab",
+          "use": "add_page"
+        },
+        {
+          "case": "you only want to read the current state",
+          "use": "get_diagram"
+        }
+      ],
+      "requires": "operations[].cell_id that exist in the current page; unknown ids need get_diagram first",
+      "errors": [
+        "stale_state",
+        "invalid_cell_id",
+        "invalid_xml"
+      ],
+      "docs": [
+        "guide://editing"
+      ],
+      "tier": "write_idempotent",
+      "annotations": {
+        "read_only": false,
+        "destructive": false,
+        "idempotent": true,
+        "open_world": false
+      }
+    },
+    {
+      "name": "get_diagram",
+      "title": "Get diagram",
+      "when_to_use": "Read the current diagram XML, including the user's manual browser edits, when you need cell ids, page structure or an exact copy of the state.",
+      "when_not_to_use": [
+        {
+          "case": "you already know the exact ids you just wrote",
+          "use": ""
+        }
+      ],
+      "requires": "optional page_id / page_name / page_index",
+      "errors": [
+        "no_session",
+        "no_diagram"
+      ],
+      "docs": [
+        "guide://editing",
+        "guide://pages"
+      ],
+      "tier": "read",
+      "annotations": {
+        "read_only": true,
+        "destructive": false,
+        "idempotent": true,
+        "open_world": false
+      }
+    },
+    {
+      "name": "screenshot_diagram",
+      "title": "Screenshot diagram",
+      "when_to_use": "Render the current diagram to a PNG so you can check overlapping shapes and edges crossing shapes after drawing or a heavy edit.",
+      "when_not_to_use": [
+        {
+          "case": "saving a file to disk",
+          "use": "export_diagram"
+        }
+      ],
+      "requires": "the preview tab to be open",
+      "errors": [
+        "preview_stalled",
+        "empty_diagram"
+      ],
+      "docs": [
+        "guide://core"
+      ],
+      "tier": "read",
+      "annotations": {
+        "read_only": true,
+        "destructive": false,
+        "idempotent": true,
+        "open_world": false
+      }
+    },
+    {
+      "name": "export_diagram",
+      "title": "Export diagram",
+      "when_to_use": "Save the current diagram to a .drawio, .png, .svg or .drawio.svg file. Format is detected from the file extension.",
+      "when_not_to_use": [
+        {
+          "case": "only previewing the result on screen",
+          "use": "screenshot_diagram"
+        }
+      ],
+      "requires": "absolute path; optional format and page selector",
+      "errors": [
+        "export_timeout",
+        "invalid_format"
+      ],
+      "docs": [
+        "guide://export"
+      ],
+      "tier": "write_idempotent",
+      "annotations": {
+        "read_only": false,
+        "destructive": false,
+        "idempotent": true,
+        "open_world": false
+      }
+    },
+    {
+      "name": "list_pages",
+      "title": "List pages",
+      "when_to_use": "List every page's id, name, 0-based index and cell count before targeting one with a page selector.",
+      "when_not_to_use": [
+        {
+          "case": "you need the cells inside a page",
+          "use": "get_diagram"
+        }
+      ],
+      "requires": "no arguments",
+      "errors": [
+        "no_diagram"
+      ],
+      "docs": [
+        "guide://pages"
+      ],
+      "tier": "read",
+      "annotations": {
+        "read_only": true,
+        "destructive": false,
+        "idempotent": true,
+        "open_world": false
+      }
+    },
+    {
+      "name": "add_page",
+      "title": "Add page",
+      "when_to_use": "Append a new tab WITHOUT touching existing pages or unsaved user edits. Returns the new page id, name and index.",
+      "when_not_to_use": [
+        {
+          "case": "replacing the whole document",
+          "use": "create_new_diagram"
+        }
+      ],
+      "requires": "optional name, id and starting xml",
+      "errors": [
+        "invalid_xml",
+        "duplicate_id"
+      ],
+      "docs": [
+        "guide://pages",
+        "guide://xml"
+      ],
+      "tier": "write",
+      "annotations": {
+        "read_only": false,
+        "destructive": false,
+        "idempotent": false,
+        "open_world": false
+      }
+    },
+    {
+      "name": "rename_page",
+      "title": "Rename page",
+      "when_to_use": "Change the visible tab label of an existing page.",
+      "when_not_to_use": [
+        {
+          "case": "changing the cells on a page",
+          "use": "edit_diagram"
+        }
+      ],
+      "requires": "one of page_id / page_name / page_index, plus new_name",
+      "errors": [
+        "page_not_found"
+      ],
+      "docs": [
+        "guide://pages"
+      ],
+      "tier": "write_idempotent",
+      "annotations": {
+        "read_only": false,
+        "destructive": false,
+        "idempotent": true,
+        "open_world": false
+      }
+    },
+    {
+      "name": "delete_page",
+      "title": "Delete page",
+      "when_to_use": "Delete an entire tab. Refuses to delete the last remaining page.",
+      "when_not_to_use": [
+        {
+          "case": "removing a single shape",
+          "use": "edit_diagram"
+        }
+      ],
+      "requires": "one of page_id / page_name / page_index",
+      "errors": [
+        "page_not_found",
+        "last_page"
+      ],
+      "docs": [
+        "guide://pages"
+      ],
+      "tier": "write_destructive",
+      "annotations": {
+        "read_only": false,
+        "destructive": true,
+        "idempotent": false,
+        "open_world": false
+      }
+    }
+  ]
+}
