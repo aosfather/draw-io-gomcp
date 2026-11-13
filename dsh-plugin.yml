@@ -1,0 +1,90 @@
+# dsh-plugin.yml — DeepSeek Harness plugin manifest for scanner discovery
+# 扫描器（dsh.so / dshplugin.store / dshplugins.org）通过此文件识别仓库类型
+# 官方无强制 schema，以下字段来自社区扫描器的实际识别规则
+
+name: draw-io-gomcp
+type: skill                 # skill | cordis-bundle | mcp-server | hybrid
+entry: .dsh/skills/draw-io-gomcp/SKILL.md
+version: "1.0"
+description: >-
+  A local, zero-dependency Draw.io MCP server written in Go. Exposes 14 typed
+  MCP tools (start_session, create_new_diagram, edit_diagram, export_diagram, ...)
+  for the entire diagramming workflow — create, edit, preview, and export via
+  natural language. This plugin bundles the skill installer that registers the
+  Go binary as an MCP server in DSH or other compatible clients.
+
+# 分类（对应 dsh.so / dshplugin.store 的 category 字段）
+category: developer-tools
+
+# 标签（对应搜索索引的 keywords）
+tags:
+  - drawio
+  - diagrams
+  - diagramming
+  - mcp
+  - go
+  - local-first
+  - zero-dependency
+  - stdio
+  - dsh-plugin
+  - deepseek-harness
+
+# 关联文件（扫描器可用来二次验证）
+files:
+  skill: .dsh/skills/draw-io-gomcp/SKILL.md
+  installer: .dsh/skills/draw-io-gomcp/scripts/install.sh
+  references:
+    - .dsh/skills/draw-io-gomcp/references/drawio-tools.md
+    - .dsh/skills/draw-io-gomcp/references/routing-index.md
+
+# 运行时要求
+requirements:
+  # dsh 版本兼容（未知版本，保守写）
+  dsh: ">=0.1.0"
+  # 操作系统
+  platforms:
+    - darwin/arm64
+    - darwin/amd64
+    - linux/amd64
+    - linux/arm64
+    - windows/amd64
+  # 外部依赖（无依赖，Go 静态二进制）
+  dependencies: []
+
+# 安装方式
+install:
+  # dsh plugin 命令行安装（需要 npm 包，当前未发布到 npm，所以用 git 方式）
+  # dsh plugin add git+https://github.com/aosfather/draw-io-gomcp.git
+  # 手动安装
+  manual: |
+    # 1. 拷贝 skill 到 dsh 发现根
+    mkdir -p ~/.dsh/skills/draw-io-gomcp
+    cp -r .dsh/skills/draw-io-gomcp/* ~/.dsh/skills/draw-io-gomcp/
+
+    # 2. 运行 installer 下载 Go 二进制 + 注册 MCP server
+    bash ~/.dsh/skills/draw-io-gomcp/scripts/install.sh
+
+    # 3. 重启 dsh 会话
+
+# 仓库元信息
+repository:
+  url: https://github.com/aosfather/draw-io-gomcp
+  license: Apache-2.0
+  homepage: https://aosfather.github.io/draw-io-gomcp/
+  topics:
+    - dsh-plugin
+    - mcp
+    - drawio
+    - diagrams
+    - deepseek-harness
+    - go
+
+# 与其他 agent 的共享兼容性
+compatibility:
+  # 此 skill 目录结构同时被以下 agent 识别
+  agents:
+    - dsh              # .dsh/skills/<slug>/SKILL.md
+    - workbuddy        # ~/.workbuddy/skills/ (通过 install.sh 注册 MCP)
+    - claude-desktop   # install.sh fallback 注册 MCP
+    - cursor           # install.sh fallback 注册 MCP
+    - codex            # ~/.agents/skills/<slug>/SKILL.md (共享根)
